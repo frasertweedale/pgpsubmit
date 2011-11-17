@@ -97,6 +97,10 @@ class Br(EmptyElement):
     pass
 
 
+class Hr(EmptyElement):
+    pass
+
+
 class Div(Element):
     pass
 
@@ -118,6 +122,10 @@ class Ul(Element):
 
 
 class Li(Element):
+    pass
+
+
+class A(Element):
     pass
 
 
