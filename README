@@ -1,0 +1,65 @@
+WSGI OpenPGP public key submission system
+=========================================
+
+pgpsubmit is a simple WSGI_ application that can be used for collecting
+OpenPGP_ public keys on a keyring e.g. for a keysigning party.
+
+.. _WSGI: http://www.python.org/dev/peps/pep-3333/
+
+
+Dependencies
+------------
+
+- `python-gnupg`__
+- `GnuPG`__
+- A WSGI capable web server (e.g. Apache_ with `mod_wsgi`__).
+
+.. _OpenPGP: http://en.wikipedia.org/wiki/Pretty_Good_Privacy
+.. _Apache: http://httpd.apache.org/
+__ http://packages.python.org/python-gnupg/
+__ http://gnupg.org/
+__ http://code.google.com/p/modwsgi/
+
+
+Configuration
+-------------
+
+Two WSGI ``environ`` variables must be set:
+
+``GNUPGHOME``
+  The GnuPG home directory.  Must be writable by the user running the
+  application.  Multiple pgpsubmit instances could be run in parallel,
+  each with a different ``GNUPGHOME``.
+``PGPSUBMITSOURCEURL``
+  URL at which may be found the corresponding source of pgpsubmit,
+  pursuant to section 15 of the AGPL.  If you run a modified version of
+  pgpsubmit, the source code for that modified version must be available
+  at this URL.
+
+A configuration for Apache with mod_wsgi might be::
+
+    <Directory /usr/home/joe/pgpsubmit>
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    <VirtualHost *:80>
+        ServerAdmin joe@example.com
+        ServerName pgpsubmit.example.com
+        DocumentRoot "/usr/home/joe/pgpsubmit"
+
+        WSGIScriptAlias / /usr/home/joe/pgpsubmit/scripts/pgpsubmit.wsgi
+        SetEnv GNUPGHOME /usr/home/joe/.pgpsubmit
+        SetEnv PGPSUBMITSOURCEURL https://gitorious.org/pgpsubmit
+    </VirtualHost>
+
+
+Development
+-----------
+
+pgpsubmit is free software, available under the terms of the `GNU Affero
+General Public License Version 3`__.  The `source code`__ is hosted at
+Gitorious.
+
+__ http://www.gnu.org/licenses/agpl.html
+__ https://gitorious.org/pgpsubmit
