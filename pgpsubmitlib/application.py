@@ -53,12 +53,19 @@ class Application(object):
             "select a file, then Submit."
         ))
 
-        form = html.Form(method='POST', enctype='multipart/form-data')
-        form.add_child(html.Textarea(name='text', cols=64, rows=18))
-        form.add_child(html.Br())
-        form.add_child(html.Input(type='file', name='file'))
-        form.add_child(html.Br())
-        form.add_child(html.Input(type='submit'))
+        form = html.Form(
+            action='',
+            method='post',
+            enctype='multipart/form-data'
+        )
+        div = html.Div(
+            html.Textarea(name='text', cols=64, rows=18),
+            html.Br(),
+            html.Input(type='file', name='file'),
+            html.Br(),
+            html.Input(type='submit')
+        )
+        form.add_child(div)
 
         body.add_child(form)
 
@@ -68,13 +75,15 @@ class Application(object):
         body.add_child(html.Hr())
         url = cgi.escape(self._srcurl, True)
         a = html.A(url, href=url)
-        body.add_child(
+        p = html.P()
+        p.add_child(
             'pgpsubmit is free software, released under the terms of '
             'the GNU Affero General Public License.  You can access '
             'the Corresponding Source at '
         )
-        body.add_child(a)
-        body.add_child('.')
+        p.add_child(a)
+        p.add_child('.')
+        body.add_child(p)
 
         attrs = {
             'xmlns': 'http://www.w3.org/1999/xhtml',
@@ -84,6 +93,7 @@ class Application(object):
         doc.add_child(head)
         doc.add_child(body)
 
+        yield '<?xml version="1.0" encoding="UTF-8"?>\n'
         yield '<!DOCTYPE html PUBLIC ' \
             '"-//W3C//DTD XHTML 1.1//EN" ' \
             '"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">\n'

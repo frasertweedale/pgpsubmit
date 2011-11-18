@@ -117,6 +117,10 @@ class H3(Element):
     pass
 
 
+class P(Element):
+    pass
+
+
 class Ul(Element):
     pass
 
