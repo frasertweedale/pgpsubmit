@@ -15,6 +15,7 @@
 # along with pgpsubmit.  If not, see <http://www.gnu.org/licenses/>.
 
 import cgi
+import datetime
 
 from . import html
 from . import pgp
@@ -52,26 +53,34 @@ class Application(object):
 
         body.add_child(self._keyring.add_key())
 
-        body.add_child(html.H2(
-            "Paste ASCII-armored public key in the field below or "
-            "select a file, then Submit."
-        ))
+        until = None
+        if 'PGPSUBMITUNTIL' in self._environ:
+            until = datetime.datetime(
+                *map(int, self._environ['PGPSUBMITUNTIL'].split('.'))
+            )
+        if not until or datetime.datetime.now() < until:
+            body.add_child(html.H2(
+                "Paste ASCII-armored public key in the field below or "
+                "select a file, then Submit."
+            ))
 
-        form = html.Form(
-            action='',
-            method='post',
-            enctype='multipart/form-data'
-        )
-        div = html.Div(
-            html.Textarea(name='text', cols=64, rows=18),
-            html.Br(),
-            html.Input(type='file', name='file'),
-            html.Br(),
-            html.Input(type='submit')
-        )
-        form.add_child(div)
+            form = html.Form(
+                action='',
+                method='post',
+                enctype='multipart/form-data'
+            )
+            div = html.Div(
+                html.Textarea(name='text', cols=64, rows=18),
+                html.Br(),
+                html.Input(type='file', name='file'),
+                html.Br(),
+                html.Input(type='submit')
+            )
+            form.add_child(div)
 
-        body.add_child(form)
+            body.add_child(form)
+        else:
+            body.add_child(html.H2('Key submission has ended.'))
 
         body.add_child(html.H2('Submitted keys:'))
 
