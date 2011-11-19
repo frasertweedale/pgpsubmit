@@ -71,3 +71,7 @@ class Keyring(object):
             uid = cgi.escape(key['uids'][0].encode('UTF-8'))
             list.add_child(html.Li(keyid + ' ' + uid))
         return list
+
+    def export_keys(self):
+        """Return ASCII armoured keyring."""
+        return self._gpg.export_keys(())

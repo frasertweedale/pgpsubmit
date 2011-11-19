@@ -36,6 +36,10 @@ class Application(object):
         self._srcurl = environ['PGPSUBMITSOURCEURL']
 
     def __iter__(self):
+        if 'keyring' in cgi.parse_qs(self._environ.get('QUERY_STRING', '')):
+            self._start('200 OK', [('Content-type', 'text/plain')])
+            yield bytes(self._keyring.export_keys())
+            return
         self._start('200 OK', [('Content-type', 'application/xhtml+xml')])
         head = html.Head()
         title = html.Title()
@@ -70,6 +74,10 @@ class Application(object):
         body.add_child(form)
 
         body.add_child(html.H2('Submitted keys:'))
+
+        a = html.A('Download keyring', href='?keyring=1')
+        body.add_child(html.P(a))
+
         body.add_child(self._keyring.list_keys())
 
         body.add_child(html.Hr())
