@@ -51,18 +51,41 @@ class Application(object):
 
         body.add_child(html.H1("Keysigning party key submission form."))
 
-        body.add_child(self._keyring.add_key())
-
         until = None
+        now = datetime.datetime.now()
         if 'PGPSUBMITUNTIL' in self._environ:
             until = datetime.datetime(
                 *map(int, self._environ['PGPSUBMITUNTIL'].split('.'))
             )
-        if not until or datetime.datetime.now() < until:
+        if not until or now < until:
+            body.add_child(self._keyring.add_key())
+
             body.add_child(html.H2(
                 "Paste ASCII-armored public key in the field below or "
                 "select a file, then Submit."
             ))
+
+            if until:
+                delta = until - now
+                msg = []
+                days = delta.days
+                if days:
+                    msg.append(
+                        '{} day{}'.format(days, '' if days == 1 else 's'))
+                hours, seconds = divmod(delta.seconds, 3600)
+                if hours or msg:
+                    msg.append(
+                        '{} hour{}'.format(hours, '' if hours == 1 else 's'))
+                minutes, seconds = divmod(seconds, 60)
+                if minutes or msg:
+                    msg.append('{} minute{}'.format(
+                        minutes, '' if minutes == 1 else 's'))
+                msg.append(
+                    '{} second{}'.format(seconds, '' if seconds == 1 else 's'))
+                remaining = ' and '.join((', '.join(msg[:-1]), msg[-1]))
+                body.add_child(html.H2(
+                    "Key submission ends in {}.".format(remaining)
+                ))
 
             form = html.Form(
                 action='',
