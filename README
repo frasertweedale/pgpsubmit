@@ -36,6 +36,14 @@ Two WSGI ``environ`` variables must be set:
   pgpsubmit, the source code for that modified version must be available
   at this URL.
 
+There are also some other configuration variables:
+
+``PGPSUBMITUNTIL``
+  Specify a deadline for submission.  After this time, submission will
+  be disabled, and a message to effect of same will appear.  While the
+  deadline looms, time remaining will be displayed.  The format is
+  ``'Y.M.D[.H[.M[.S]]]'``.
+
 A configuration for Apache with mod_wsgi might be::
 
     <Directory /usr/home/joe/pgpsubmit>
@@ -51,6 +59,7 @@ A configuration for Apache with mod_wsgi might be::
         WSGIScriptAlias / /usr/home/joe/pgpsubmit/scripts/pgpsubmit.wsgi
         SetEnv GNUPGHOME /usr/home/joe/.pgpsubmit
         SetEnv PGPSUBMITSOURCEURL https://gitorious.org/pgpsubmit
+        SetEnv PGPSUBMITUNTIL 2011.12.31.18.30
     </VirtualHost>
 
 
