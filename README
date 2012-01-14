@@ -41,6 +41,11 @@ There are also some other configuration variables:
   be disabled, and a message to effect of same will appear.  While the
   deadline looms, time remaining will be displayed.  The format is
   ``'Y.M.D[.H[.M[.S]]]'``.
+``PGPSUBMITDOWNLOADEARLY``
+  If a deadline is set, links to download the keyring and key list are
+  not shown until the submission deadline is reached.  Settings this
+  environment variable (to any value) causes these links to be shown
+  regardless of whether or not the deadline has passed.
 
 A configuration for Apache with mod_wsgi might be::
 

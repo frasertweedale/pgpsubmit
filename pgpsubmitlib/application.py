@@ -111,8 +111,16 @@ class Application(object):
         # get list of keys with fingerprints
         fprs = self._keyring.fingerprint()
 
-        a = html.A('Download keyring', href='?keyring=1')
-        body.add_child(html.P(a))
+        if not until \
+                or 'PGPSUBMITDOWNLOADEARLY' in self._environ \
+                or now >= until:
+            a = html.A('Download keyring', href='?keyring=1')
+            body.add_child(html.P(a))
+        else:
+            body.add_child(html.P(
+                'Keyring will be available for download '
+                'when key submission has ended.'
+            ))
 
         body.add_child(html.Pre(fprs))
 
