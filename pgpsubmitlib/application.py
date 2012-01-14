@@ -39,7 +39,7 @@ class Application(object):
     def __iter__(self):
         if 'keyring' in cgi.parse_qs(self._environ.get('QUERY_STRING', '')):
             self._start('200 OK', [('Content-type', 'text/plain')])
-            yield bytes(self._keyring.export_keys())
+            yield bytes(self._keyring.export())
             return
         self._start('200 OK', [('Content-type', 'application/xhtml+xml')])
         head = html.Head()
@@ -108,10 +108,13 @@ class Application(object):
 
         body.add_child(html.H2('Submitted keys:'))
 
+        # get list of keys with fingerprints
+        fprs = self._keyring.fingerprint()
+
         a = html.A('Download keyring', href='?keyring=1')
         body.add_child(html.P(a))
 
-        body.add_child(self._keyring.list_keys())
+        body.add_child(html.Pre(fprs))
 
         body.add_child(html.Hr())
         a = html.A(self._srcurl, href=self._srcurl)

@@ -10,13 +10,11 @@ OpenPGP_ public keys on a keyring e.g. for a keysigning party.
 Dependencies
 ------------
 
-- `python-gnupg`__
 - `GnuPG`__
 - A WSGI capable web server (e.g. Apache_ with `mod_wsgi`__).
 
 .. _OpenPGP: http://en.wikipedia.org/wiki/Pretty_Good_Privacy
 .. _Apache: http://httpd.apache.org/
-__ http://packages.python.org/python-gnupg/
 __ http://gnupg.org/
 __ http://code.google.com/p/modwsgi/
 

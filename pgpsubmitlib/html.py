@@ -143,3 +143,7 @@ class Textarea(Element):
 
 class Input(EmptyElement):
     pass
+
+
+class Pre(Element):
+    pass
