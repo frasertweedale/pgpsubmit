@@ -16,6 +16,7 @@
 
 import cgi
 import datetime
+import hashlib
 
 from . import html
 from . import pgp
@@ -40,6 +41,10 @@ class Application(object):
         if 'keyring' in cgi.parse_qs(self._environ.get('QUERY_STRING', '')):
             self._start('200 OK', [('Content-type', 'text/plain')])
             yield bytes(self._keyring.export())
+            return
+        if 'keylist' in cgi.parse_qs(self._environ.get('QUERY_STRING', '')):
+            self._start('200 OK', [('Content-type', 'text/plain')])
+            yield bytes(self._keyring.fingerprint())
             return
         self._start('200 OK', [('Content-type', 'application/xhtml+xml')])
         head = html.Head()
@@ -116,9 +121,15 @@ class Application(object):
                 or now >= until:
             a = html.A('Download keyring', href='?keyring=1')
             body.add_child(html.P(a))
+
+            a = html.A('Download key list', href='?keylist=1')
+            md5 = hashlib.md5(fprs).hexdigest()
+            sha1 = hashlib.sha1(fprs).hexdigest()
+            p = html.P(a, html.Br(), 'md5 = ', md5, html.Br(), 'sha1 = ', sha1)
+            body.add_child(p)
         else:
             body.add_child(html.P(
-                'Keyring will be available for download '
+                'Keyring and key list will be available for download '
                 'when key submission has ended.'
             ))
 
