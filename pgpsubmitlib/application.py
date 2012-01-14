@@ -82,7 +82,8 @@ class Application(object):
                         minutes, '' if minutes == 1 else 's'))
                 msg.append(
                     '{} second{}'.format(seconds, '' if seconds == 1 else 's'))
-                remaining = ' and '.join((', '.join(msg[:-1]), msg[-1]))
+                remaining = msg[0] if len(msg) == 1 \
+                    else ' and '.join((', '.join(msg[:-1]), msg[-1]))
                 body.add_child(html.H2(
                     "Key submission ends in {}.".format(remaining)
                 ))
