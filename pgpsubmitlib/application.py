@@ -114,8 +114,7 @@ class Application(object):
         body.add_child(self._keyring.list_keys())
 
         body.add_child(html.Hr())
-        url = cgi.escape(self._srcurl, True)
-        a = html.A(url, href=url)
+        a = html.A(self._srcurl, href=self._srcurl)
         p = html.P()
         p.add_child(
             'pgpsubmit is free software, released under the terms of '

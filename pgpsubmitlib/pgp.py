@@ -68,7 +68,7 @@ class Keyring(object):
             key=lambda x: x['keyid'][-8:]
         ):
             keyid = str(key['keyid'][-8:])
-            uid = cgi.escape(key['uids'][0].encode('UTF-8'))
+            uid = key['uids'][0].encode('UTF-8')
             list.add_child(html.Li(keyid + ' ' + uid))
         return list
 

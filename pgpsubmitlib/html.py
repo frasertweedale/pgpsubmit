@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with pgpsubmit.  If not, see <http://www.gnu.org/licenses/>.
 
-import abc
+import cgi
 
 
 class Element(object):
@@ -57,7 +57,7 @@ class Element(object):
             self.tag,
             ' ' if self._attrs else '',
             ' '.join(
-                '{}="{}"'.format(k, v)
+                '{}="{}"'.format(k, cgi.escape(str(v), True))
                 for k, v in self._attrs.viewitems()
             )
         )
@@ -66,7 +66,7 @@ class Element(object):
                 for _child in child:
                     yield _child
             else:
-                yield child
+                yield cgi.escape(str(child))
         yield '</{}>'.format(self.tag)
 
 
