@@ -15,6 +15,7 @@
 # along with pgpsubmit.  If not, see <http://www.gnu.org/licenses/>.
 
 import cgi
+import os
 import re
 import subprocess
 import urlparse
@@ -52,6 +53,12 @@ class Keyring(object):
             raise EnvironmentError('GNUPGHOME must be specified')
         self._environ = environ
 
+    @property
+    def environ(self):
+        env = dict(os.environ)
+        env['GNUPGHOME'] = self._environ['GNUPGHOME']
+        return env
+
     def add_key(self):
         """Add the submitted key, returning HTML."""
         div = html.Div()
@@ -73,7 +80,8 @@ class Keyring(object):
                 ['gpg', '--import'],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
+                env=self.environ
             )
             stdout, stderr = gpg.communicate(text)
             div.add_child(html.H1('Submission result'))
@@ -85,14 +93,16 @@ class Keyring(object):
 
     def export(self):
         """Return ASCII armoured keyring."""
-        return subprocess.check_output(['gpg', '-a', '--export'])
+        args = ['gpg', '-a', '--export']
+        return subprocess.check_output(args, env=self.environ)
 
     def fingerprint(self):
         """Return a string list of keys with fingerprints.
 
         The keys are ordered by key ID.
         """
-        output = subprocess.check_output(['gpg', '--fingerprint'])
+        args = ['gpg', '--fingerprint']
+        output = subprocess.check_output(args, env=self.environ)
         lines = output.splitlines()
         paras = paragraphs(lines[2:])
         return '\n\n'.join(sorted(paras, key=get_key_id))
