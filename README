@@ -6,6 +6,12 @@ OpenPGP_ public keys on a keyring e.g. for a keysigning party.
 
 .. _WSGI: http://www.python.org/dev/peps/pep-3333/
 
+Features include:
+
+- submission deadline and "time remaining" display
+- keyring and key list export (with MD5 and SHA-1 hashes)
+- configured entirely through environment
+
 
 Dependencies
 ------------
