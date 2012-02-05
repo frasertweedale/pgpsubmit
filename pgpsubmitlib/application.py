@@ -16,6 +16,7 @@
 
 import cgi
 import datetime
+import hashlib
 
 from . import html
 from . import pgp
@@ -39,7 +40,11 @@ class Application(object):
     def __iter__(self):
         if 'keyring' in cgi.parse_qs(self._environ.get('QUERY_STRING', '')):
             self._start('200 OK', [('Content-type', 'text/plain')])
-            yield bytes(self._keyring.export_keys())
+            yield bytes(self._keyring.export())
+            return
+        if 'keylist' in cgi.parse_qs(self._environ.get('QUERY_STRING', '')):
+            self._start('200 OK', [('Content-type', 'text/plain')])
+            yield bytes(self._keyring.fingerprint())
             return
         self._start('200 OK', [('Content-type', 'application/xhtml+xml')])
         head = html.Head()
@@ -82,7 +87,8 @@ class Application(object):
                         minutes, '' if minutes == 1 else 's'))
                 msg.append(
                     '{} second{}'.format(seconds, '' if seconds == 1 else 's'))
-                remaining = ' and '.join((', '.join(msg[:-1]), msg[-1]))
+                remaining = msg[0] if len(msg) == 1 \
+                    else ' and '.join((', '.join(msg[:-1]), msg[-1]))
                 body.add_child(html.H2(
                     "Key submission ends in {}.".format(remaining)
                 ))
@@ -107,14 +113,30 @@ class Application(object):
 
         body.add_child(html.H2('Submitted keys:'))
 
-        a = html.A('Download keyring', href='?keyring=1')
-        body.add_child(html.P(a))
+        # get list of keys with fingerprints
+        fprs = self._keyring.fingerprint()
 
-        body.add_child(self._keyring.list_keys())
+        if not until \
+                or 'PGPSUBMITDOWNLOADEARLY' in self._environ \
+                or now >= until:
+            a = html.A('Download keyring', href='?keyring=1')
+            body.add_child(html.P(a))
+
+            a = html.A('Download key list', href='?keylist=1')
+            md5 = hashlib.md5(fprs).hexdigest()
+            sha1 = hashlib.sha1(fprs).hexdigest()
+            p = html.P(a, html.Br(), 'md5 = ', md5, html.Br(), 'sha1 = ', sha1)
+            body.add_child(p)
+        else:
+            body.add_child(html.P(
+                'Keyring and key list will be available for download '
+                'when key submission has ended.'
+            ))
+
+        body.add_child(html.Pre(fprs))
 
         body.add_child(html.Hr())
-        url = cgi.escape(self._srcurl, True)
-        a = html.A(url, href=url)
+        a = html.A(self._srcurl, href=self._srcurl)
         p = html.P()
         p.add_child(
             'pgpsubmit is free software, released under the terms of '

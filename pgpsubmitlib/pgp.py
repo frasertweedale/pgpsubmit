@@ -15,11 +15,30 @@
 # along with pgpsubmit.  If not, see <http://www.gnu.org/licenses/>.
 
 import cgi
+import os
+import re
+import subprocess
 import urlparse
 
-import gnupg
-
 from . import html
+
+
+def paragraphs(lines):
+    """Given iterable of lines, yield paragraphs of joined lines."""
+    para = []
+    for line in lines:
+        if line:
+            para.append(line)
+        else:
+            yield '\n'.join(para)
+            para = []
+    if para:
+        yield '\n'.join(para)
+
+
+def get_key_id(para):
+    """Extract the key ID from the given paragraph."""
+    return re.match(r'pub\s+\w+/([\dA-F]*)', para).group(1)
 
 
 class Keyring(object):
@@ -33,7 +52,12 @@ class Keyring(object):
         if 'GNUPGHOME' not in environ:
             raise EnvironmentError('GNUPGHOME must be specified')
         self._environ = environ
-        self._gpg = gnupg.GPG(gnupghome=environ['GNUPGHOME'])
+
+    @property
+    def environ(self):
+        env = dict(os.environ)
+        env['GNUPGHOME'] = self._environ['GNUPGHOME']
+        return env
 
     def add_key(self):
         """Add the submitted key, returning HTML."""
@@ -52,26 +76,33 @@ class Keyring(object):
                 text = fields['file'].value
 
         if text:
-            result = self._gpg.import_keys(text)
-            div.add_child(html.H1(
-                '{} key{} imported.'
-                ''.format(result.count or 0, '' if result.count == 1 else 's')
-            ))
+            gpg = subprocess.Popen(
+                ['gpg', '--import'],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=self.environ
+            )
+            stdout, stderr = gpg.communicate(text)
+            div.add_child(html.H1('Submission result'))
+            lines = \
+                (l for l in stderr.splitlines() if l.startswith('gpg: key '))
+            div.add_child(html.Pre('\n'.join(lines)))
 
         return div
 
-    def list_keys(self):
-        """Return HTML list of keys in keyring."""
-        list = html.Ul()
-        for key in sorted(
-            self._gpg.list_keys(),
-            key=lambda x: x['keyid'][-8:]
-        ):
-            keyid = str(key['keyid'][-8:])
-            uid = cgi.escape(key['uids'][0].encode('UTF-8'))
-            list.add_child(html.Li(keyid + ' ' + uid))
-        return list
-
-    def export_keys(self):
+    def export(self):
         """Return ASCII armoured keyring."""
-        return self._gpg.export_keys(())
+        args = ['gpg', '-a', '--export']
+        return subprocess.check_output(args, env=self.environ)
+
+    def fingerprint(self):
+        """Return a string list of keys with fingerprints.
+
+        The keys are ordered by key ID.
+        """
+        args = ['gpg', '--fingerprint']
+        output = subprocess.check_output(args, env=self.environ)
+        lines = output.splitlines()
+        paras = paragraphs(lines[2:])
+        return '\n\n'.join(sorted(paras, key=get_key_id))
