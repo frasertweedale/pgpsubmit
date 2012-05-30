@@ -28,8 +28,13 @@ __ http://code.google.com/p/modwsgi/
 Configuration
 -------------
 
-Two WSGI ``environ`` variables must be set:
+Three WSGI ``environ`` variables must be set:
 
+``PGPSUBMITEXECUTABLE``
+  Name or full path of the GnuPG executable.  If the value does not
+  begin with ``"/"``, an executable will be looked for on ``PATH``
+  by the normal mechanism.  If using Apache httpd and encountering
+  ``OSError``, try specifying the full path to the GnuPG executable.
 ``GNUPGHOME``
   The GnuPG home directory.  Must be writable by the user running the
   application.  Multiple pgpsubmit instances could be run in parallel,
@@ -66,6 +71,7 @@ A configuration for Apache with mod_wsgi might be::
         DocumentRoot "/usr/home/joe/pgpsubmit"
 
         WSGIScriptAlias / /usr/home/joe/pgpsubmit/scripts/pgpsubmit.wsgi
+        SetEnv PGPSUBMITEXECUTABLE /usr/local/bin/gpg
         SetEnv GNUPGHOME /usr/home/joe/.pgpsubmit
         SetEnv PGPSUBMITSOURCEURL https://gitorious.org/pgpsubmit
         SetEnv PGPSUBMITUNTIL 2011.12.31.18.30

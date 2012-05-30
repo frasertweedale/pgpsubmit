@@ -59,6 +59,10 @@ class Keyring(object):
         env['GNUPGHOME'] = self._environ['GNUPGHOME']
         return env
 
+    @property
+    def executable(self):
+        return self._environ['PGPSUBMITEXECUTABLE']
+
     def add_key(self):
         """Add the submitted key, returning HTML."""
         div = html.Div()
@@ -77,7 +81,7 @@ class Keyring(object):
 
         if text:
             gpg = subprocess.Popen(
-                ['gpg', '--import'],
+                [self.executable, '--import'],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -93,7 +97,7 @@ class Keyring(object):
 
     def export(self):
         """Return ASCII armoured keyring."""
-        args = ['gpg', '-a', '--export']
+        args = [self.executable, '-a', '--export']
         return subprocess.check_output(args, env=self.environ)
 
     def fingerprint(self):
@@ -101,7 +105,7 @@ class Keyring(object):
 
         The keys are ordered by key ID.
         """
-        args = ['gpg', '--fingerprint']
+        args = [self.executable, '--fingerprint']
         output = subprocess.check_output(args, env=self.environ)
         lines = output.splitlines()
         paras = paragraphs(lines[2:])
