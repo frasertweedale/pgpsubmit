@@ -1,5 +1,5 @@
 # This file is part of pgpsubmit
-# Copyright (C) 2011 Fraser Tweedale
+# Copyright (C) 2011, 2012 Fraser Tweedale
 #
 # pgpsubmit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -63,7 +63,7 @@ class Application(object):
                 *map(int, self._environ['PGPSUBMITUNTIL'].split('.'))
             )
         if not until or now < until:
-            body.add_child(self._keyring.add_key())
+            body.add_child(self._keyring.process_environ())
 
             body.add_child(html.H2(
                 "Paste ASCII-armored public key in the field below or "

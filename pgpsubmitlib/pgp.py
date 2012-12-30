@@ -1,5 +1,5 @@
 # This file is part of pgpsubmit
-# Copyright (C) 2011 Fraser Tweedale
+# Copyright (C) 2011, 2012 Fraser Tweedale
 #
 # pgpsubmit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -63,7 +63,29 @@ class Keyring(object):
     def executable(self):
         return self._environ['PGPSUBMITEXECUTABLE']
 
-    def add_key(self):
+    def count_keys(self, text):
+        gpg = subprocess.Popen(
+            [self.executable],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=self.environ
+        )
+        stdout, stderr = gpg.communicate(text)
+        return len([l for l in stdout.splitlines() if l.startswith("pub ")])
+
+    def import_keys(self, text):
+        """Import key(s) from the text, returning stdout and stderr."""
+        gpg = subprocess.Popen(
+            [self.executable, '--import'],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=self.environ
+        )
+        return gpg.communicate(text)
+
+    def process_environ(self):
         """Add the submitted key, returning HTML."""
         div = html.Div()
 
@@ -80,18 +102,16 @@ class Keyring(object):
                 text = fields['file'].value
 
         if text:
-            gpg = subprocess.Popen(
-                [self.executable, '--import'],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                env=self.environ
-            )
-            stdout, stderr = gpg.communicate(text)
             div.add_child(html.H1('Submission result'))
-            lines = \
-                (l for l in stderr.splitlines() if l.startswith('gpg: key '))
-            div.add_child(html.Pre('\n'.join(lines)))
+            if self.count_keys(text) <= 1:
+                stdout, stderr = self.import_keys(text)
+                pattern = re.compile('^gpg: (?!WARNING)')
+                lines = (l for l in stderr.splitlines() if pattern.match(l))
+                div.add_child(html.Pre('\n'.join(lines)))
+            else:
+                div.add_child(
+                    html.P("ERROR: Keys must be submitted one at a time.")
+                )
 
         return div
 
