@@ -45,7 +45,8 @@ Three WSGI ``environ`` variables must be set:
   pgpsubmit, the source code for that modified version must be available
   at this URL.
 
-There are also some other configuration variables:
+There are some other configuration variables for controlling
+submission deadlines:
 
 ``PGPSUBMITUNTIL``
   Specify a deadline for submission.  After this time, submission will
@@ -73,17 +74,34 @@ A configuration for Apache with mod_wsgi might be::
         WSGIScriptAlias / /usr/home/joe/pgpsubmit/scripts/pgpsubmit.wsgi
         SetEnv PGPSUBMITEXECUTABLE /usr/local/bin/gpg
         SetEnv GNUPGHOME /usr/home/joe/.pgpsubmit
-        SetEnv PGPSUBMITSOURCEURL https://gitorious.org/pgpsubmit
+        SetEnv PGPSUBMITSOURCEURL https://github.com/frasertweedale/pgpsubmit
         SetEnv PGPSUBMITUNTIL 2011.12.31.18.30
     </VirtualHost>
 
 
-Development
------------
+License
+-------
 
-pgpsubmit is free software, available under the terms of the `GNU Affero
-General Public License Version 3`__.  The `source code`__ is hosted at
-Gitorious.
+pgpsubmit is free software: you can redistribute it and/or modify
+it under the terms of the `GNU Affero General Public License`__ as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
 __ http://www.gnu.org/licenses/agpl.html
-__ https://gitorious.org/pgpsubmit
+
+
+Contributing
+------------
+
+The pgpsubmit source code is available from
+https://github.com/frasertweedale/pgpsubmit.
+
+Bug reports, patches, feature requests, code review and
+documentation are welcomed.
+
+To submit a patch, please use ``git send-email`` or generate a pull
+request.  Write a `well formed commit message`_.  If your patch is
+nontrivial, update the copyright notice at the top of each changed
+file.
+
+.. _well formed commit message: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
