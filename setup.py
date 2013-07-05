@@ -5,7 +5,7 @@ with open('README.rst') as file:
 
 setup(
     name='pgpsubmit',
-    version='0.3',
+    version='0.3.1',
     description='WSGI PGP public key submission system',
     author='Fraser Tweedale',
     author_email='frase@frase.id.au',
