@@ -77,7 +77,7 @@ class Keyring(object):
     def import_keys(self, text):
         """Import key(s) from the text, returning stdout and stderr."""
         gpg = subprocess.Popen(
-            [self.executable, '--import'],
+            [self.executable, '--import-options=import-minimal', '--import'],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
