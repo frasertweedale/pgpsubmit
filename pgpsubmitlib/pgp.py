@@ -1,5 +1,5 @@
 # This file is part of pgpsubmit
-# Copyright (C) 2011, 2012 Fraser Tweedale
+# Copyright (C) 2011, 2012, 2014 Fraser Tweedale
 #
 # pgpsubmit is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,7 @@ class Keyring(object):
 
     @property
     def executable(self):
-        return self._environ['PGPSUBMITEXECUTABLE']
+        return self._environ.get('PGPSUBMITEXECUTABLE', 'gpg')
 
     def count_keys(self, text):
         gpg = subprocess.Popen(
