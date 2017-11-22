@@ -125,7 +125,7 @@ class Keyring(object):
 
         The keys are ordered by key ID.
         """
-        args = [self.executable, '--fingerprint']
+        args = [self.executable, '--keyid-format=long', '--fingerprint']
         output = subprocess.check_output(args, env=self.environ)
         lines = output.splitlines()
         paras = paragraphs(lines[2:])
